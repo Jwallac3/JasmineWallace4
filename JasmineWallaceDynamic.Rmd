@@ -1,0 +1,119 @@
+---
+title: "Take Home Assignment 4"
+author: "Jasmine Wallace"
+date: "`r format(Sys.time(), '%d %B %Y')`"
+output: word_document: default
+---
+
+This is an [R Markdown](http://rmarkdown.rstudio.com) Notebook. When you execute code within the notebook, the results appear beneath the code. 
+
+Try executing this chunk by clicking the *Run* button within the chunk or by placing your cursor inside it and pressing *Ctrl+Shift+Enter*. 
+
+```{r}
+#Jasmine Wallace Take Home Assignment 4 --
+# Due November21, 2019 ---- 
+# clear console, global environment--
+rm(list= ls())
+cat("\014")
+
+
+date()
+sessionInfo()
+
+help("read.csv")
+
+
+
+install.packages("tidyverse")
+library(ggplot2)
+library(Hmisc)
+library (tidyverse)
+library(dplyr)
+
+#load dataset
+ghana_bednet <- read.csv("C:\Users\jbnw\OneDrive\Documents\R\ghana_bednet.csv")
+load ("C:\Users\jbnw\OneDrive\Documents\R\ghana_bednet.csv")
+
+# Q1. 26342 obs
+# Q2. 8 variables
+
+summary (ghana_bednet)
+
+#fix data for sex
+ghana_bednet$sex[ghana_bednet$sex == "F"]<- 1
+ghana_bednet$sex[ghana_bednet$sex =="."] <- NA
+summary(ghana_bednet)
+
+
+describe(ghana_bednet)
+#Q3. proportion of male children is 50.5%
+
+#Q4
+methods(summary)
+help(summarise)
+filter(ghana_bednet, sex == "1" & bednet == "1" )
+femaleintv <- subset(ghana_bednet, sex == "1" & bednet == "1")
+describe(femaleintv)
+sum(femaleintv)
+
+
+
+#COME BACK
+
+
+
+clusterkid <- ghana_bednet%>%
+  filter(cluster == "52" & outcome =="1")%>%
+  select( outcome)
+describe(clusterkid)
+
+clusterkid <- ghana_bednet%>%
+  filter(cluster == "52" & outcome =="0")%>%
+  select( outcome)
+describe(clusterkid)
+
+#Q5 97.6% of children in cluster 52 died
+
+clusterchild <- subset(ghana_bednet, cluster == "52")
+describe(clusterchild)
+summary(clusterchild)
+newage = ghana_bednet$agemn
+sd(newage)
+summary(ghana_bednet)
+
+#Q6. the mean age is 25.287 months and the std dev is 18.02471
+
+
+#Q7 the mortality rate in intervention is 29.75 per 1000 people
+#the mortality rate in the control is 35.38 per 1000 people
+
+tapply(ghana_bednet$outcome, ghana_bednet$bednet, mean)
+
+
+#Q8 answer
+ghana_bednet %>% group_by(bednet, cluster) %>%
+  summarise(prop=sum(outcome/n())) %>%
+  ggplot(aes(x=cluster, y=prop, fill=as.factor(bednet)))+
+  geom_bar(stat="identity")
+
+#Q9
+glm('outcome~bednet', family=binomial(link= "logit"), ghana_bednet, start = NULL)
+
+
+# Q10
+t.test(ghana_bednet$outcome~ghana_bednet$bednet)
+#lower probability of dying if in an intervntion cluster
+#coefficients=-3.3055 pvalue=0.009991
+
+#this is the end of the script
+```
+
+```{r}
+
+```
+
+Add a new chunk by clicking the *Insert Chunk* button on the toolbar or by pressing *Ctrl+Alt+I*.
+
+When you save the notebook, an HTML file containing the code and output will be saved alongside it (click the *Preview* button or press *Ctrl+Shift+K* to preview the HTML file).
+
+The preview shows you a rendered HTML copy of the contents of the editor. Consequently, unlike *Knit*, *Preview* does not run any R code chunks. Instead, the output of the chunk when it was last run in the editor is displayed.
